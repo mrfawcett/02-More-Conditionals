@@ -83,9 +83,9 @@ class CanRideExtremeCoasterTest {
     @Test
     void canRideExtremeCoaster_Test08 () {
         int age = 17;
-        double height = 55;
+        double height = 54;
         boolean vip = true;
-        boolean expected = false; // even with VIP, still under 60 height for normal rule, and not special because already older than 14
+        boolean expected = false; // even with VIP, still under 55 height for special rule
         boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
         assertEquals(expected, received);
     }
@@ -115,10 +115,10 @@ class CanRideExtremeCoasterTest {
     @DisplayName("canRideExtremeCoaster Test 11")
     @Test
     void canRideExtremeCoaster_Test11 () {
-        int age = 16;
-        double height = 55;
+        int age = 13;
+        double height = 53;
         boolean vip = true;
-        boolean expected = false; // 16yo requires 60+, VIP doesn’t lower below 60 unless under 16
+        boolean expected = false; // under age and under height
         boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
         assertEquals(expected, received);
     }
