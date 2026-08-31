@@ -1,125 +1,76 @@
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CanRideExtremeCoasterTest {
-    @DisplayName("canRideExtremeCoaster Test 1")
-    @Test
-    void canRideExtremeCoaster_Test01 () {
-        int age = 18;
-        double height = 65;
-        boolean vip = false;
-        boolean expected = true; // meets 16+ and 60+
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+public class CanRideExtremeCoasterTest {
+
+    private static void check(boolean expected, int age, double height, boolean vip, String why) {
+        assertEquals(expected, ThemePark.canRideExtremeCoaster(age, height, vip),
+            "canRideExtremeCoaster(" + age + ", " + height + ", " + vip + "): " + why);
     }
 
-    @DisplayName("canRideExtremeCoaster Test 2")
+    @DisplayName("canRideExtremeCoaster: 18 years, 65 in, no VIP -> true")
     @Test
-    void canRideExtremeCoaster_Test02 () {
-        int age = 16;
-        double height = 60;
-        boolean vip = false;
-        boolean expected = true; // exactly at boundary for normal rules
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test01() {
+        check(true, 18, 65, false, "meets 16+ and 60+");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 3")
+    @DisplayName("canRideExtremeCoaster: exactly 16 years and exactly 60 in, no VIP -> true")
     @Test
-    void canRideExtremeCoaster_Test03 () {
-        int age = 15;
-        double height = 60;
-        boolean vip = false;
-        boolean expected = false; // under 16 without VIP
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test02() {
+        check(true, 16, 60, false, "'at least' means the boundary counts -- use >=, not >");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 4")
+    @DisplayName("canRideExtremeCoaster: 15 years, 60 in, no VIP -> false")
     @Test
-    void canRideExtremeCoaster_Test04 () {
-        int age = 16;
-        double height = 59;
-        boolean vip = false;
-        boolean expected = false; // tall enough only at 60+
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test03() {
+        check(false, 15, 60, false, "under 16 without a VIP pass");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 5")
+    @DisplayName("canRideExtremeCoaster: 16 years, 59 in, no VIP -> false")
     @Test
-    void canRideExtremeCoaster_Test05 () {
-        int age = 14;
-        double height = 55;
-        boolean vip = true;
-        boolean expected = true; // exactly at VIP boundary
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test04() {
+        check(false, 16, 59, false, "old enough but one inch short of 60");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 6")
+    @DisplayName("canRideExtremeCoaster: VIP, exactly 14 years and exactly 55 in -> true")
     @Test
-    void canRideExtremeCoaster_Test06 () {
-        int age = 14;
-        double height = 54.9;
-        boolean vip = true;
-        boolean expected = false; // height just below VIP requirement
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test05() {
+        check(true, 14, 55, true, "exactly at the VIP boundary; both >= should be true");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 7")
+    @DisplayName("canRideExtremeCoaster: VIP, 14 years, 54.9 in -> false")
     @Test
-    void canRideExtremeCoaster_Test07 () {
-        int age = 13;
-        double height = 60;
-        boolean vip = true;
-        boolean expected = false; // under VIP minimum age (14)
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test06() {
+        check(false, 14, 54.9, true, "height is a double; 54.9 is below 55");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 8")
+    @DisplayName("canRideExtremeCoaster: VIP, 13 years, 60 in -> false")
     @Test
-    void canRideExtremeCoaster_Test08 () {
-        int age = 17;
-        double height = 54;
-        boolean vip = true;
-        boolean expected = false; // even with VIP, still under 55 height for special rule
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test07() {
+        check(false, 13, 60, true, "tall enough, but under the VIP minimum age of 14");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 9")
+    @DisplayName("canRideExtremeCoaster: VIP, 17 years, 54 in -> false (VIP lowers the bar, it does not remove it)")
     @Test
-    void canRideExtremeCoaster_Test09 () {
-        int age = 20;
-        double height = 59;
-        boolean vip = false;
-        boolean expected = false; // fails normal requirement (needs 60+ height)
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test08() {
+        check(false, 17, 54, true, "even a VIP must be at least 55 inches");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 10")
+    @DisplayName("canRideExtremeCoaster: 20 years, 59 in, no VIP -> false")
     @Test
-    void canRideExtremeCoaster_Test10 () {
-        int age = 15;
-        double height = 57;
-        boolean vip = true;
-        boolean expected = true; // meets VIP conditions (14+ and 55+)
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test09() {
+        check(false, 20, 59, false, "fails the normal 60-inch requirement");
     }
 
-    @DisplayName("canRideExtremeCoaster Test 11")
+    @DisplayName("canRideExtremeCoaster: VIP, 15 years, 57 in -> true")
     @Test
-    void canRideExtremeCoaster_Test11 () {
-        int age = 13;
-        double height = 53;
-        boolean vip = true;
-        boolean expected = false; // under age and under height
-        boolean received = ThemePark.canRideExtremeCoaster(age, height, vip);
-        assertEquals(expected, received);
+    void canRideExtremeCoaster_Test10() {
+        check(true, 15, 57, true, "meets the VIP rule (14+ and 55+) even though not the normal rule");
+    }
+
+    @DisplayName("canRideExtremeCoaster: VIP, 13 years, 53 in -> false")
+    @Test
+    void canRideExtremeCoaster_Test11() {
+        check(false, 13, 53, true, "under both the VIP age and the VIP height");
     }
 }

@@ -1,105 +1,70 @@
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CanRideKiddieCarouselTest {
-    @DisplayName("canRideKiddieCarousel Test 1")
-    @Test
-    void canRideKiddieCarousel_Test01 () {
-        int age = 11;
-        boolean sibling = false;
-        boolean expected = true; // under 12, always allowed
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+public class CanRideKiddieCarouselTest {
+
+    private static void check(boolean expected, int age, boolean sibling, String why) {
+        assertEquals(expected, ThemePark.canRideKiddieCarousel(age, sibling),
+            "canRideKiddieCarousel(" + age + ", " + sibling + "): " + why);
     }
 
-    @DisplayName("canRideKiddieCarousel Test 2")
+    @DisplayName("canRideKiddieCarousel: 11 years, no sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test02 () {
-        int age = 5;
-        boolean sibling = false;
-        boolean expected = true; // under 12
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test01() {
+        check(true, 11, false, "under 12 always rides");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 3")
+    @DisplayName("canRideKiddieCarousel: 5 years, no sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test03 () {
-        int age = 0;
-        boolean sibling = false;
-        boolean expected = true; // even babies are "under 12"
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test02() {
+        check(true, 5, false, "under 12 always rides");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 4")
+    @DisplayName("canRideKiddieCarousel: 0 years, no sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test04 () {
-        int age = 12;
-        boolean sibling = true;
-        boolean expected = true; // 12+ requires younger sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test03() {
+        check(true, 0, false, "even a baby is 'under 12'");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 5")
+    @DisplayName("canRideKiddieCarousel: exactly 12 years, with younger sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test05 () {
-        int age = 12;
-        boolean sibling = false;
-        boolean expected = false; // 12+ without sibling not allowed
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test04() {
+        check(true, 12, true, "12 or older needs a younger sibling, and has one");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 6")
+    @DisplayName("canRideKiddieCarousel: exactly 12 years, no sibling -> false")
     @Test
-    void canRideKiddieCarousel_Test06 () {
-        int age = 15;
-        boolean sibling = true;
-        boolean expected = true; // older but has younger sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test05() {
+        check(false, 12, false, "12 is NOT under 12 -- check < versus <=");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 7")
+    @DisplayName("canRideKiddieCarousel: 15 years, with younger sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test07 () {
-        int age = 15;
-        boolean sibling = false;
-        boolean expected = false; // older without sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test06() {
+        check(true, 15, true, "older, but with a younger sibling");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 8")
+    @DisplayName("canRideKiddieCarousel: 15 years, no sibling -> false")
     @Test
-    void canRideKiddieCarousel_Test08 () {
-        int age = 30;
-        boolean sibling = true;
-        boolean expected = true; // technically allowed if with younger sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test07() {
+        check(false, 15, false, "older without a younger sibling");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 9")
+    @DisplayName("canRideKiddieCarousel: 30 years, with younger sibling -> true")
     @Test
-    void canRideKiddieCarousel_Test09 () {
-        int age = 30;
-        boolean sibling = false;
-        boolean expected = false; // too old, no sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test08() {
+        check(true, 30, true, "any age is allowed with a younger sibling");
     }
 
-    @DisplayName("canRideKiddieCarousel Test 10")
+    @DisplayName("canRideKiddieCarousel: 30 years, no sibling -> false")
     @Test
-    void canRideKiddieCarousel_Test10 () {
-        int age = 12;
-        boolean sibling = true;
-        boolean expected = true; // checking exact boundary with sibling
-        boolean received = ThemePark.canRideKiddieCarousel(age, sibling);
-        assertEquals(expected, received);
+    void canRideKiddieCarousel_Test09() {
+        check(false, 30, false, "too old, no sibling");
     }
 
+    @DisplayName("canRideKiddieCarousel: 11 years, with sibling -> true (sibling is irrelevant under 12)")
+    @Test
+    void canRideKiddieCarousel_Test10() {
+        check(true, 11, true, "under 12 rides whether or not a sibling is along");
+    }
 }

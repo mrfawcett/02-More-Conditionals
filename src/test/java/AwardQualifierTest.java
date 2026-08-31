@@ -1,115 +1,75 @@
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class AwardQualifierTest {
-    @DisplayName("awardQualifier Test 1")
-    @Test
-    void awardQualifier_Test01 () {
-        double gpa = 4.0;
-        int tardies = 2;
-        int detentions = 0;
-        String expects = "Honor Roll"; // GPA ≥ 3.5, no detentions, fewer than 3 tardies
+public class AwardQualifierTest {
+
+    /** Compares ignoring case and surrounding spaces; the spelling must be right. */
+    private static void check(String expected, double gpa, int tardies, int detentions, String why) {
         String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+        String call = "awardQualifier(" + gpa + ", " + tardies + ", " + detentions + ")";
+        assertNotNull(received, call + " returned null");
+        assertEquals(expected.toLowerCase(), received.trim().toLowerCase(), call + ": " + why);
     }
 
-    @DisplayName("awardQualifier Test 2")
+    @DisplayName("awardQualifier: GPA 4.0, 2 tardies, 0 detentions -> Honor Roll")
     @Test
-    void awardQualifier_Test02 () {
-        double gpa = 3.6;
-        int tardies = 3;
-        int detentions = 0;
-        String expects = "Merit List"; // GPA ≥ 3.5, no detentions, but tardies not < 3
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test01() {
+        check("Honor Roll", 4.0, 2, 0, "GPA >= 3.5, no detentions, fewer than 3 tardies");
     }
 
-    @DisplayName("awardQualifier Test 3")
+    @DisplayName("awardQualifier: GPA 3.6 with 3 tardies (not fewer than 3) -> Merit List")
     @Test
-    void awardQualifier_Test03 () {
-        double gpa = 3.5;
-        int tardies = 1;
-        int detentions = 1;
-        String expects = "No List"; // GPA ≥ 3.5, but has detention → disqualified
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test02() {
+        check("Merit List", 3.6, 3, 0, "GPA >= 3.5 and no detentions, but 3 tardies is not < 3");
     }
 
-    @DisplayName("awardQualifier Test 4")
+    @DisplayName("awardQualifier: GPA 3.5 with ONE detention -> No List (not Merit List)")
     @Test
-    void awardQualifier_Test04 () {
-        double gpa = 3.4;
-        int tardies = 0;
-        int detentions = 1;
-        String expects = "Merit List"; // GPA in (2.5,3.5), detentions < 2
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test03() {
+        check("No List", 3.5, 1, 1,
+            "a 3.5+ student with any detention is off both lists; "
+            + "the Merit List rule is only for GPAs 2.5 to 3.49");
     }
 
-    @DisplayName("awardQualifier Test 5")
+    @DisplayName("awardQualifier: GPA 3.4, 1 detention -> Merit List")
     @Test
-    void awardQualifier_Test05 () {
-        double gpa = 3.4;
-        int tardies = 2;
-        int detentions = 2;
-        String expects = "No List"; // GPA in range, but detentions ≥ 2
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test04() {
+        check("Merit List", 3.4, 0, 1, "GPA in 2.5..3.49 and fewer than 2 detentions");
     }
 
-    @DisplayName("awardQualifier Test 6")
+    @DisplayName("awardQualifier: GPA 3.4, 2 detentions -> No List")
     @Test
-    void awardQualifier_Test06 () {
-        double gpa = 2.6;
-        int tardies = 5;
-        int detentions = 0;
-        String expects = "Merit List"; // GPA in (2.5,3.5), detentions < 2
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test05() {
+        check("No List", 3.4, 2, 2, "GPA in range, but 2 detentions is not fewer than 2");
     }
 
-    @DisplayName("awardQualifier Test 7")
+    @DisplayName("awardQualifier: GPA 2.6, 5 tardies, 0 detentions -> Merit List (tardies do not matter here)")
     @Test
-    void awardQualifier_Test07 () {
-        double gpa = 2.6;
-        int tardies = 1;
-        int detentions = 2;
-        String expects = "No List"; // GPA in range, but detentions ≥ 2
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test06() {
+        check("Merit List", 2.6, 5, 0, "tardies are only checked for the Honor Roll, not the Merit List");
     }
 
-    @DisplayName("awardQualifier Test 8")
+    @DisplayName("awardQualifier: GPA 2.6, 2 detentions -> No List")
     @Test
-    void awardQualifier_Test08 () {
-        double gpa = 2.49;
-        int tardies = 0;
-        int detentions = 0;
-        String expects = "No List"; // GPA = 2.49 (boundary not included for Merit List)
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test07() {
+        check("No List", 2.6, 1, 2, "GPA in range, but 2 detentions is not fewer than 2");
     }
 
-    @DisplayName("awardQualifier Test 9")
+    @DisplayName("awardQualifier: GPA 2.49 is just below the Merit List cutoff -> No List")
     @Test
-    void awardQualifier_Test09 () {
-        double gpa = 0.0;
-        int tardies = 10;
-        int detentions = 5;
-        String expects = "No List"; // Very low GPA → automatically No List
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test08() {
+        check("No List", 2.49, 0, 0, "2.49 < 2.5, so a perfect record does not help");
     }
 
-    @DisplayName("awardQualifier Test 10")
+    @DisplayName("awardQualifier: GPA 0.0, 10 tardies, 5 detentions -> No List")
     @Test
-    void awardQualifier_Test10 () {
-        double gpa = 3.9;
-        int tardies = 0;
-        int detentions = 0;
-        String expects = "Honor Roll"; // Best case: GPA high, no detentions, no tardies
-        String received = HonorRoll.awardQualifier(gpa, tardies, detentions);
-        assertEquals(expects.trim().toLowerCase(), received.trim().toLowerCase());
+    void awardQualifier_Test09() {
+        check("No List", 0.0, 10, 5, "very low GPA is always No List");
     }
 
+    @DisplayName("awardQualifier: GPA 3.9, 0 tardies, 0 detentions -> Honor Roll")
+    @Test
+    void awardQualifier_Test10() {
+        check("Honor Roll", 3.9, 0, 0, "best case: high GPA, clean record");
+    }
 }

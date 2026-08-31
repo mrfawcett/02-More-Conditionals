@@ -1,115 +1,71 @@
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class CanRideFamilyRiverTest {
-    @DisplayName("canRideFamilyRiver Test 1")
-    @Test
-    void canRideFamilyRiver_Test01 () {
-        int age = 8;
-        double height = 40;
-        boolean parent = false;
-        boolean expected = true; // exactly at boundary
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+
+    private static void check(boolean expected, int age, double height, boolean parent, String why) {
+        assertEquals(expected, ThemePark.canRideFamilyRiver(age, height, parent),
+            "canRideFamilyRiver(" + age + ", " + height + ", " + parent + "): " + why);
     }
 
-    @DisplayName("canRideFamilyRiver Test 2")
+    @DisplayName("canRideFamilyRiver: exactly 8 years and exactly 40 in, no parent -> true")
     @Test
-    void canRideFamilyRiver_Test02 () {
-        int age = 10;
-        double height = 45;
-        boolean parent = false;
-        boolean expected = true; // clearly qualifies
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test01() {
+        check(true, 8, 40, false, "exactly at both boundaries; 'at least' includes them");
     }
 
-    @DisplayName("canRideFamilyRiver Test 3")
+    @DisplayName("canRideFamilyRiver: 10 years, 45 in, no parent -> true")
     @Test
-    void canRideFamilyRiver_Test03 () {
-        int age = 8;
-        double height = 39;
-        boolean parent = false;
-        boolean expected = false; // fails height requirement
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test02() {
+        check(true, 10, 45, false, "clearly meets both requirements");
     }
 
-    @DisplayName("canRideFamilyRiver Test 4")
+    @DisplayName("canRideFamilyRiver: 8 years, 39 in, no parent -> false")
     @Test
-    void canRideFamilyRiver_Test04 () {
-        int age = 7;
-        double height = 42;
-        boolean parent = true;
-        boolean expected = true; // under 8, but has parent
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test03() {
+        check(false, 8, 39, false, "old enough but one inch short of 40");
     }
 
-    @DisplayName("canRideFamilyRiver Test 5")
+    @DisplayName("canRideFamilyRiver: 7 years, 42 in, with parent -> true")
     @Test
-    void canRideFamilyRiver_Test05 () {
-        int age = 7;
-        double height = 39;
-        boolean parent = true;
-        boolean expected = true; // parent overrides age/height rules
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test04() {
+        check(true, 7, 42, true, "under 8 but with a parent");
     }
 
-    @DisplayName("canRideFamilyRiver Test 6")
+    @DisplayName("canRideFamilyRiver: 7 years, 39 in, with parent -> true (parent overrides the height rule)")
     @Test
-    void canRideFamilyRiver_Test06 () {
-        int age = 7;
-        double height = 42;
-        boolean parent = false;
-        boolean expected = false; // under 8, no parent
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test05() {
+        check(true, 7, 39, true,
+            "for an under-8, a parent replaces BOTH the age and the height requirement");
     }
 
-    @DisplayName("canRideFamilyRiver Test 7")
+    @DisplayName("canRideFamilyRiver: 7 years, 42 in, no parent -> false")
     @Test
-    void canRideFamilyRiver_Test07 () {
-        int age = 12;
-        double height = 39;
-        boolean parent = false;
-        boolean expected = false; // meets age but fails height
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test06() {
+        check(false, 7, 42, false, "under 8 with no parent cannot ride, even if tall enough");
     }
 
-    @DisplayName("canRideFamilyRiver Test 8")
+    @DisplayName("canRideFamilyRiver: 12 years, 39 in, no parent -> false")
     @Test
-    void canRideFamilyRiver_Test08 () {
-        int age = 5;
-        double height = 30;
-        boolean parent = true;
-        boolean expected = true; // very young, but with parent
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test07() {
+        check(false, 12, 39, false, "8 or older must meet the height rule themselves");
     }
 
-    @DisplayName("canRideFamilyRiver Test 9")
+    @DisplayName("canRideFamilyRiver: 5 years, 30 in, with parent -> true")
     @Test
-    void canRideFamilyRiver_Test09 () {
-        int age = 5;
-        double height = 30;
-        boolean parent = false;
-        boolean expected = false; // very young, no parent
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test08() {
+        check(true, 5, 30, true, "very young and very short, but with a parent");
     }
 
-    @DisplayName("canRideFamilyRiver Test 10")
+    @DisplayName("canRideFamilyRiver: 5 years, 30 in, no parent -> false")
     @Test
-    void canRideFamilyRiver_Test10 () {
-        int age = 20;
-        double height = 70;
-        boolean parent = false;
-        boolean expected = true; // adult, easily qualifies
-        boolean received = ThemePark.canRideFamilyRiver(age, height, parent);
-        assertEquals(expected, received);
+    void canRideFamilyRiver_Test09() {
+        check(false, 5, 30, false, "very young, no parent");
+    }
+
+    @DisplayName("canRideFamilyRiver: 20 years, 70 in, no parent -> true")
+    @Test
+    void canRideFamilyRiver_Test10() {
+        check(true, 20, 70, false, "an adult easily qualifies");
     }
 }

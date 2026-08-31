@@ -1,0 +1,6 @@
+[
+ {"test": "AwardQualifierTest",        "name": "HonorRoll.awardQualifier",        "points": 40},
+ {"test": "CanRideExtremeCoasterTest", "name": "ThemePark.canRideExtremeCoaster", "points": 25},
+ {"test": "CanRideFamilyRiverTest",    "name": "ThemePark.canRideFamilyRiver",    "points": 20},
+ {"test": "CanRideKiddieCarouselTest", "name": "ThemePark.canRideKiddieCarousel", "points": 15}
+]

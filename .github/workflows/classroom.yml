@@ -1,0 +1,76 @@
+name: Autograding Tests
+'on':
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Integrity check - tests, pom.xml and grading.json must be unchanged
+        run: |
+          EXPECTED="781395e801bd0d6d42c0780935148226d4202485521b84fd2dc4ba86e427e788"
+          ACTUAL=$( (for f in $(find src/test/java -type f -name '*.java' | LC_ALL=C sort) pom.xml grading.json; do sed 's/\r$//' "$f"; done) | sha256sum | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::The test files, pom.xml, or grading.json in this repository differ from the assignment template. Grading has been stopped. Restore the original files (git checkout origin/main -- src/test pom.xml grading.json) and push again."
+            exit 1
+          fi
+          echo "Integrity check passed."
+      - name: "HonorRoll.awardQualifier (40)"
+        id: awardqualifier
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "HonorRoll.awardQualifier"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=AwardQualifierTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 40
+      - name: "ThemePark.canRideExtremeCoaster (25)"
+        id: canrideextremecoaster
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThemePark.canRideExtremeCoaster"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=CanRideExtremeCoasterTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 25
+      - name: "ThemePark.canRideFamilyRiver (20)"
+        id: canridefamilyriver
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThemePark.canRideFamilyRiver"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=CanRideFamilyRiverTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 20
+      - name: "ThemePark.canRideKiddieCarousel (15)"
+        id: canridekiddiecarousel
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThemePark.canRideKiddieCarousel"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=CanRideKiddieCarouselTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 15
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          AWARDQUALIFIER_RESULTS: "${{ steps.awardqualifier.outputs.result }}"
+          CANRIDEEXTREMECOASTER_RESULTS: "${{ steps.canrideextremecoaster.outputs.result }}"
+          CANRIDEFAMILYRIVER_RESULTS: "${{ steps.canridefamilyriver.outputs.result }}"
+          CANRIDEKIDDIECAROUSEL_RESULTS: "${{ steps.canridekiddiecarousel.outputs.result }}"
+        with:
+          runners: awardqualifier,canrideextremecoaster,canridefamilyriver,canridekiddiecarousel
